@@ -242,16 +242,22 @@ namespace XamarinStore
 
 				public async Task Update (Product product)
 				{
-					NameLabel.Text = product.Name;
-					SizeLabel.Text = product.Size.Description;
-					ColorLabel.Text = product.Color.Name;
+					var isSurprise = product.GetType () == typeof(SurpriseProduct);
+
+					NameLabel.Text = isSurprise ? SurpriseProduct.SurpriseProductName : product.Name;
+					SizeLabel.Text = isSurprise ? "???" : product.Size.Description;
+					ColorLabel.Text = isSurprise ? "???" : product.Color.Name;
 					PriceLabel.Text = product.PriceDescription;
-					var imageTask = FileCache.Download (product.ImageForSize (320));
-					if(!imageTask.IsCompleted)
-						//Put default before doing the web request;
-						ImageView.Image = Image.Value;
-					var image = await imageTask;
-					ImageView.Image = UIImage.FromFile (image);
+
+					if (!isSurprise) 
+					{
+						var imageTask = FileCache.Download (product.ImageForSize (320));
+						if (!imageTask.IsCompleted)
+							//Put default before doing the web request;
+							ImageView.Image = Image.Value;
+						var image = await imageTask;
+						ImageView.Image = UIImage.FromFile (image);
+					}
 				}
 			}
 		}

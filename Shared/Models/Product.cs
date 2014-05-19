@@ -9,7 +9,50 @@ namespace XamarinStore
 	{
 		MensCSharpShirt,
 		WomensCSharpShirt,
-		PlushMonkey
+		PlushMonkey,
+	}
+
+	// so we can use GetType() to identify surprise products and not alter the json output for the webservice
+	public class SurpriseProduct : Product, ICloneable
+	{
+		public static readonly string SurpriseProductName = "Mystery Item";
+
+		#region ICloneable implementation
+
+		public override object Clone ()
+		{
+			// in practice, this object was already cloned via the AsSurpriseProduct extension method,
+			// but overriding Clone here prevents the base method being called and 'de-surprising' our 
+			// surprise product.
+			return new SurpriseProduct {
+				Price = Price,
+				Size = Size,
+				Name = Name,
+				Color = Color,
+				ProductType = ProductType,
+				Colors = new ProductColor[] { Color }
+			};
+		}
+
+		#endregion
+	}
+
+	public static class ProductExtensions 
+	{
+		// creates a SurpriseProduct from a Product
+		public static SurpriseProduct AsSurpriseProduct(this Product p)
+		{
+			return new SurpriseProduct {
+				Price = p.Price,
+				Size =  p.Size,
+				Name = p.Name,
+				Color = p.Color,
+				ProductType = p.ProductType,
+				Colors = p.Colors.ToArray(),
+				Sizes = p.Sizes.ToArray(),
+				Description = p.Description,
+			};
+		}
 	}
 
 	public class Product : ICloneable
@@ -68,7 +111,7 @@ namespace XamarinStore
 
 		#region ICloneable implementation
 
-		public object Clone ()
+		public virtual object Clone ()
 		{
 			return new Product {
 				Price =  Price,
